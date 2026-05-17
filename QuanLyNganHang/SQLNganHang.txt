@@ -1,0 +1,1697 @@
+CREATE DATABASE NganHang;
+GO
+
+USE NganHang;
+GO
+
+/* ============================================================
+   1. B?NG CHI NHÁNH
+   maChiNhanh VARCHAR(10)
+============================================================ */
+CREATE TABLE ChiNhanh (
+    maChiNhanh      VARCHAR(10) PRIMARY KEY,
+    tenChiNhanh     NVARCHAR(100),
+    diaChi          NVARCHAR(200),
+    soDienThoai     NVARCHAR(20)
+);
+GO
+
+/* ============================================================
+   2. B?NG NHÂN VIÊN
+   => THÊM: gioiTinh, email, ngayVaoLam, viTri, trangThai, quyenHan
+============================================================ */
+CREATE TABLE NhanVien (
+    maNhanVien      VARCHAR(10) PRIMARY KEY,
+    tenNhanVien     NVARCHAR(100),
+    ngaySinh        DATE,
+    gioiTinh        NVARCHAR(10),
+    email           NVARCHAR(100),
+    ngayVaoLam      DATE,
+    viTri           NVARCHAR(100),
+    trangThai       NVARCHAR(50),
+    quyenHan        NVARCHAR(50),
+    diaChi          NVARCHAR(200),
+    soDienThoai     NVARCHAR(20),
+    maChiNhanh      VARCHAR(10),
+    FOREIGN KEY (maChiNhanh) REFERENCES ChiNhanh(maChiNhanh)
+);
+GO
+
+/* ============================================================
+   3. B?NG KHÁCH HÀNG
+   => THÊM: email, ngayDangKy, gioiTinh, loaiKhachHang, trangThai
+============================================================ */
+CREATE TABLE KhachHang (
+    maKhachHang     VARCHAR(10) PRIMARY KEY,
+    tenKhachHang    NVARCHAR(100),
+    ngaySinh        DATE,
+    gioiTinh        NVARCHAR(10),
+    email           NVARCHAR(100),
+    ngayDangKy      DATE,
+    loaiKhachHang   NVARCHAR(50),
+    trangThai       NVARCHAR(50),
+    diaChi          NVARCHAR(200),
+    soCMND          NVARCHAR(20),
+    soDienThoai     NVARCHAR(20),
+    maChiNhanh      VARCHAR(10),
+    FOREIGN KEY (maChiNhanh) REFERENCES ChiNhanh(maChiNhanh)
+);
+GO
+
+/* ============================================================
+   4. B?NG TÀI KHO?N
+============================================================ */
+CREATE TABLE TaiKhoan (
+    soTaiKhoan      VARCHAR(10) PRIMARY KEY,
+    ngayMo          DATE,
+    maKhachHang     VARCHAR(10),
+    soDu            DECIMAL(15,2),
+    FOREIGN KEY (maKhachHang) REFERENCES KhachHang(maKhachHang)
+);
+GO
+
+/* ============================================================
+   5. B?NG LO?I TH?
+============================================================ */
+CREATE TABLE LoaiThe (
+    maLoaiThe       VARCHAR(10) PRIMARY KEY,
+    tenLoaiThe      NVARCHAR(50)
+);
+GO
+
+/* ============================================================
+   6. B?NG TH? ATM
+============================================================ */
+CREATE TABLE TheATM (
+    soThe           VARCHAR(10) PRIMARY KEY,
+	ngayMoThe		DATE,
+    ngayHetHan      DATE,
+    maLoaiThe       VARCHAR(10),
+    soTaiKhoan      VARCHAR(10),
+    FOREIGN KEY (maLoaiThe) REFERENCES LoaiThe(maLoaiThe),
+    FOREIGN KEY (soTaiKhoan) REFERENCES TaiKhoan(soTaiKhoan)
+);
+GO
+
+/* ============================================================
+   7. B?NG GIAO D?CH
+   => THÊM: trangThai, thoiGianGiaoDich
+============================================================ */
+CREATE TABLE GiaoDich (
+    maGiaoDich      VARCHAR(10) PRIMARY KEY,
+    ngayGiaoDich    DATE,
+    soTienGiaoDich  DECIMAL(15,2),
+    trangThai       NVARCHAR(50),
+    taiKhoanNguon   VARCHAR(10),
+    taiKhoanDich    VARCHAR(10),
+    moTa	        NVARCHAR(50),
+	loaiGiaoDich    NVARCHAR(50) NOT NULL,
+    FOREIGN KEY (taiKhoanNguon) REFERENCES TaiKhoan(soTaiKhoan),
+    FOREIGN KEY (taiKhoanDich) REFERENCES TaiKhoan(soTaiKhoan)
+);
+GO
+
+-- ============================
+-- 1. CHÈN D? LI?U VÀO B?NG CHI NHÁNH
+-- ============================
+INSERT INTO ChiNhanh (maChiNhanh, tenChiNhanh, diaChi, soDienThoai) 
+VALUES
+('CN001', N'Chi Nhánh Hà Nội', N'Số 123, phố Nguyễn Trãi, Hà Nội', N'024-12345678'),
+('CN002', N'Chi Nhánh Hồ Chí Minh', N'Số 45, đường Nguyễn Thị Minh Khai, TP.HCM', N'028-98765432'),
+('CN003', N'Chi Nhánh Đà Nẵng', N'Số 99, Đường ABC, Đà Nẵng', N'0236-3334444');
+GO
+-- ============================
+-- 2. CHÈN D? LI?U VÀO B?NG NHÂN VIÊN
+-- ============================
+-- Đảm bảo bạn đang sử dụng database NganHang trước khi chạy đoạn này
+-- USE NganHang; 
+-- GO 
+
+-- ============================
+-- 2. CHÈN DỮ LIỆU VÀO BẢNG NHÂN VIÊN (40 NHÂN VIÊN)
+-- Đã sửa lỗi ký tự có dấu (thêm tiền tố N) và đa dạng hóa dữ liệu
+-- ============================
+INSERT INTO NhanVien 
+(maNhanVien, tenNhanVien, ngaySinh, gioiTinh, email, ngayVaoLam, viTri, trangThai, quyenHan, diaChi, soDienThoai, maChiNhanh) 
+VALUES
+-- --- BATCH 1: Đã có, Sửa dấu ---
+('NV001', N'Nguyễn Văn A', '1990-01-10', N'Nam',   'nguyena@bank.com',  '2020-02-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0901111111', 'CN001'),
+('NV002', N'Trần Thị B',   '1992-03-12', N'Nữ',    'tranb@bank.com',    '2020-05-11', N'Kế Toán', N'Đang làm', N'User', N'Q3', '0902222222', 'CN002'),
+('NV003', N'Lê Văn C',   '1989-07-20', N'Nam',   'levanc@bank.com',   '2021-01-08', N'Bảo Vệ', N'Đang làm', N'User', N'TD', '0903333333', 'CN003'),
+('NV004', N'Phạm Thị D',   '1995-09-25', N'Nữ',    'phamd@bank.com',    '2021-06-02', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0904444444', 'CN001'),
+('NV005', N'Hoàng Văn E',  '1988-02-14', N'Nam',   'hoange@bank.com',   '2022-02-20', N'Quản Lý', N'Đang làm', N'Admin', N'Q3', '0905555555', 'CN002'),
+('NV006', N'Đỗ Thị F',   '1991-10-11', N'Nữ',    'dof@bank.com',      '2022-03-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0906666666', 'CN003'),
+('NV007', N'Lý Văn G',   '1990-12-22', N'Nam',   'lyg@bank.com',      '2022-05-05', N'Thu Ngân', N'Nghỉ việc', N'User', N'Q1', '0907777777', 'CN001'),
+('NV008', N'Nguyễn Thị H', '1993-11-30', N'Nữ',    'nguyenh@bank.com',  '2023-01-10', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q3', '0908888888', 'CN002'),
+('NV009', N'Phan Văn I',   '1985-04-18', N'Nam',   'phani@bank.com',    '2023-02-15', N'Quản Lý', N'Đang làm', N'Admin', N'TD', '0909999999', 'CN003'),
+('NV010', N'Trương Thị J', '1994-07-09', N'Nữ',    'truongj@bank.com',  '2023-03-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0910000000', 'CN001'),
+
+-- --- BATCH 2: Đã có, Sửa dấu và đa dạng hóa Email/Năm sinh ---
+('NV011', N'Nguyễn Văn K', '1996-01-10', N'Nam',   'nguyenk@bank.com',  '2023-04-15', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0911111111', 'CN001'),
+('NV012', N'Trần Thị L',   '1998-03-12', N'Nữ',    'tranl@bank.com',    '2023-05-20', N'Kế Toán', N'Đang làm', N'User', N'Q3', '0912222222', 'CN002'),
+('NV013', N'Lê Văn M',   '1987-07-20', N'Nam',   'lem@bank.com',      '2024-01-08', N'Bảo Vệ', N'Đang làm', N'User', N'TD', '0913333333', 'CN003'),
+('NV014', N'Phạm Thị N',   '1999-09-25', N'Nữ',    'phamn@bank.com',    '2024-02-02', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0914444444', 'CN001'),
+('NV015', N'Hoàng Văn O',  '1995-02-14', N'Nam',   'hoango@bank.com',   '2024-03-20', N'Quản Lý', N'Đang làm', N'Admin', N'Q3', '0915555555', 'CN002'),
+('NV016', N'Đỗ Thị P',   '1997-10-11', N'Nữ',    'dop@bank.com',      '2024-04-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0916666666', 'CN003'),
+('NV017', N'Lý Văn Q',   '1986-12-22', N'Nam',   'lyq@bank.com',      '2024-05-05', N'Thu Ngân', N'Đang làm', N'User', N'Q1', '0917777777', 'CN001'), -- Sửa trạng thái
+('NV018', N'Nguyễn Thị R', '1998-11-30', N'Nữ',    'nguyenr@bank.com',  '2024-06-10', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q3', '0918888888', 'CN002'),
+('NV019', N'Phan Văn S',   '1993-04-18', N'Nam',   'phans@bank.com',    '2024-07-15', N'Quản Lý', N'Đang làm', N'Admin', N'TD', '0919999999', 'CN003'),
+('NV020', N'Trương Thị T', '1995-07-09', N'Nữ',    'truongt@bank.com',  '2024-08-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0920000000', 'CN001'),
+
+-- --- BATCH 3: Nhân viên mới (21 - 30) ---
+('NV021', N'Võ Văn U', '1984-05-05', N'Nam', 'vovu@bank.com', '2019-10-20', N'Kiểm Soát', N'Đang làm', N'Admin', N'Q3', '0921111111', 'CN002'),
+('NV022', N'Bùi Thị V', '1997-08-15', N'Nữ',  'buiv@bank.com', '2020-03-10', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0922222222', 'CN003'),
+('NV023', N'Đinh Văn W', '1990-11-20', N'Nam', 'dinhw@bank.com', '2021-09-01', N'Kế Toán', N'Đang làm', N'User', N'Q1', '0923333333', 'CN001'),
+('NV024', N'Ngô Thị X', '1998-02-28', N'Nữ',  'ngox@bank.com', '2022-01-15', N'Thu Ngân', N'Đang làm', N'User', N'Q3', '0924444444', 'CN002'),
+('NV025', N'Mai Văn Y', '1992-06-05', N'Nam', 'maiy@bank.com', '2022-07-01', N'Quản Lý', N'Nghỉ việc', N'Admin', N'TD', '0925555555', 'CN003'),
+('NV026', N'Trịnh Thị Z', '1995-09-09', N'Nữ',  'trinhz@bank.com', '2023-01-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0926666666', 'CN001'),
+('NV027', N'Hồ Văn AA', '1986-12-12', N'Nam', 'hoaa@bank.com', '2023-04-10', N'Kế Toán', N'Đang làm', N'User', N'Q3', '0927777777', 'CN002'),
+('NV028', N'Tô Thị BB', '1994-03-03', N'Nữ',  'tobb@bank.com', '2023-08-25', N'Thu Ngân', N'Đang làm', N'User', N'TD', '0928888888', 'CN003'),
+('NV029', N'Đặng Văn CC', '1991-07-17', N'Nam', 'dangcc@bank.com', '2024-01-05', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0929999999', 'CN001'),
+('NV030', N'Châu Thị DD', '1996-10-28', N'Nữ',  'chaudd@bank.com', '2024-03-15', N'Kiểm Soát', N'Đang làm', N'Admin', N'Q3', '0930000000', 'CN002'),
+
+-- --- BATCH 4: Nhân viên mới (31 - 40) ---
+('NV031', N'Phùng Văn EE', '1987-04-01', N'Nam', 'phunge@bank.com', '2019-05-01', N'Quản Lý', N'Đang làm', N'Admin', N'TD', '0931111111', 'CN003'),
+('NV032', N'Lâm Thị FF', '1999-05-20', N'Nữ',  'lamf@bank.com', '2020-01-10', N'Giao Dịch Viên', N'Đang làm', N'User', N'Q1', '0932222222', 'CN001'),
+('NV033', N'Giáp Văn GG', '1993-08-11', N'Nam', 'giapg@bank.com', '2021-03-01', N'Kế Toán', N'Nghỉ việc', N'User', N'Q3', '0933333333', 'CN002'),
+('NV034', N'Khuất Thị HH', '1996-12-05', N'Nữ',  'khuath@bank.com', '2022-04-15', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0934444444', 'CN003'),
+('NV035', N'Nguyễn Văn II', '1988-03-25', N'Nam', 'nguyeni@bank.com', '2022-10-01', N'Quản Lý', N'Đang làm', N'Admin', N'Q1', '0935555555', 'CN001'),
+('NV036', N'Trần Thị JJ', '1990-09-19', N'Nữ',  'tranj@bank.com', '2023-02-28', N'Thu Ngân', N'Đang làm', N'User', N'Q3', '0936666666', 'CN002'),
+('NV037', N'Lý Văn KK', '1995-01-29', N'Nam', 'lykk@bank.com', '2023-06-15', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0937777777', 'CN003'),
+('NV038', N'Phạm Thị LL', '1998-04-14', N'Nữ',  'phamll@bank.com', '2023-11-01', N'Kế Toán', N'Đang làm', N'User', N'Q1', '0938888888', 'CN001'),
+('NV039', N'Hoàng Văn MM', '1992-07-07', N'Nam', 'hoangm@bank.com', '2024-02-10', N'Quản Lý', N'Đang làm', N'Admin', N'Q3', '0939999999', 'CN002'),
+('NV040', N'Đỗ Thị NN', '1999-11-30', N'Nữ',  'donn@bank.com', '2024-05-01', N'Giao Dịch Viên', N'Đang làm', N'User', N'TD', '0940000000', 'CN003');
+
+
+-- ============================
+-- 3. CHÈN D? LI?U VÀO B?NG KHÁCH HÀNG
+-- ============================
+-- Đảm bảo bạn đang sử dụng database NganHang trước khi chạy đoạn này
+-- USE NganHang; 
+-- GO 
+
+-- ============================
+-- 3. CHÈN DỮ LIỆU VÀO BẢNG KHÁCH HÀNG (40 KHÁCH HÀNG)
+-- Đã sửa lỗi ký tự có dấu và đa dạng hóa dữ liệu
+-- ============================
+INSERT INTO KhachHang 
+(maKhachHang, tenKhachHang, ngaySinh, gioiTinh, email, ngayDangKy, loaiKhachHang, trangThai, diaChi, soCMND, soDienThoai, maChiNhanh)
+VALUES
+-- --- BATCH 1: Đã có, Sửa dấu ---
+('KH001', N'Nguyễn Minh A', '1995-01-01', N'Nam', 'nguyena@mail.com', '2022-01-10', N'VIP', N'Hoạt động', N'Q1', '111111111', '0901111111', 'CN001'),
+('KH002', N'Lê Thị B', '1996-03-05', N'Nữ', 'leb@mail.com', '2022-02-12', N'Thường', N'Hoạt động', N'Q3', '222222222', '0902222222', 'CN002'),
+('KH003', N'Trần Văn C', '1990-04-10', N'Nam', 'tranc@mail.com', '2022-03-15', N'VIP', N'Hoạt động', N'TD', '333333333', '0903333333', 'CN003'),
+('KH004', N'Phạm Thị D', '1998-06-20', N'Nữ', 'phamd@mail.com', '2022-05-21', N'Thường', N'Hoạt động', N'Q1', '444444444', '0904444444', 'CN001'),
+('KH005', N'Hoàng Văn E', '1993-07-30', N'Nam', 'hoange@mail.com', '2022-07-25', N'VIP', N'Hoạt động', N'Q3', '555555555', '0905555555', 'CN002'),
+
+('KH006', N'Lê Anh F', '1999-08-22', N'Nam', 'leanhf@mail.com', '2023-01-03', N'Thường', N'Hoạt động', N'TD', '666666666', '0906666666', 'CN003'),
+('KH007', N'Trần Ngọc G', '1992-02-12', N'Nữ', 'trangocg@mail.com', '2023-03-04', N'VIP', N'Hoạt động', N'Q1', '777777777', '0907777777', 'CN001'),
+('KH008', N'Dương Văn H', '1994-09-14', N'Nam', 'duongh@mail.com', '2023-05-06', N'Thường', N'Khóa', N'Q3', '888888888', '0908888888', 'CN002'),
+('KH009', N'Phan Thị I', '1991-11-22', N'Nữ', 'phani@mail.com', '2023-06-08', N'VIP', N'Hoạt động', N'TD', '999999999', '0909999999', 'CN003'),
+('KH010', N'Nguyễn Hoài J', '1990-12-12', N'Nữ', 'hoaij@mail.com', '2023-07-09', N'Thường', N'Hoạt động', N'Q1', '101010101', '0910000000', 'CN001'),
+
+-- --- BATCH 2: Đã có (11-20), Sửa dấu và đa dạng hóa Email/Ngày đăng ký ---
+('KH011', N'Đào Văn K', '1995-01-01', N'Nam', 'daovank@mail.com', '2022-01-15', N'VIP', N'Hoạt động', N'Q1', '111111113', '0911111111', 'CN001'),
+('KH012', N'Ngô Thị L', '1996-03-05', N'Nữ', 'ngol@mail.com', '2022-02-28', N'Thường', N'Hoạt động', N'Q3', '222222224', '0912222222', 'CN002'),
+('KH013', N'Bùi Văn M', '1990-04-10', N'Nam', 'buivm@mail.com', '2022-04-15', N'VIP', N'Hoạt động', N'TD', '333333335', '0913333333', 'CN003'),
+('KH014', N'Trần Thị N', '1998-06-20', N'Nữ', 'trann@mail.com', '2022-06-01', N'Thường', N'Khóa', N'Q1', '444444446', '0914444444', 'CN001'),
+('KH015', N'Lý Văn O', '1993-07-30', N'Nam', 'lyvano@mail.com', '2022-08-05', N'VIP', N'Hoạt động', N'Q3', '555555557', '0915555555', 'CN002'),
+('KH016', N'Phan Thị P', '1999-08-22', N'Nữ', 'phanp@mail.com', '2023-01-15', N'Thường', N'Hoạt động', N'TD', '666666668', '0916666666', 'CN003'),
+('KH017', N'Vũ Ngọc Q', '1992-02-12', N'Nam', 'vuq@mail.com', '2023-03-20', N'VIP', N'Hoạt động', N'Q1', '777777778', '0917777777', 'CN001'),
+('KH018', N'Hồ Thị R', '1994-09-14', N'Nữ', 'hor@mail.com', '2023-05-30', N'Thường', N'Hoạt động', N'Q3', '888888889', '0918888888', 'CN002'),
+('KH019', N'Đặng Văn S', '1991-11-22', N'Nữ', 'dangs@mail.com', '2023-06-15', N'VIP', N'Hoạt động', N'TD', '999999990', '0919999999', 'CN003'),
+('KH020', N'Châu Thị T', '1990-12-12', N'Nữ', 'chaut@mail.com', '2023-07-25', N'Thường', N'Hoạt động', N'Q1', '101010102', '0920000000', 'CN001'),
+
+-- --- BATCH 3: Khách hàng mới (21 - 30) ---
+('KH021', N'Võ Minh U', '1985-05-05', N'Nam', 'vomu@mail.com', '2024-01-01', N'Thường', N'Hoạt động', N'Q3', '1111111110', '0921111111', 'CN002'),
+('KH022', N'Bùi Ánh V', '1997-08-15', N'Nữ', 'buiv@mail.com', '2024-01-10', N'VIP', N'Hoạt động', N'TD', '2222222221', '0922222222', 'CN003'),
+('KH023', N'Đinh Tuấn W', '1990-11-20', N'Nam', 'dinhw@mail.com', '2024-02-05', N'Thường', N'Hoạt động', N'Q1', '3333333332', '0923333333', 'CN001'),
+('KH024', N'Ngô Mai X', '1998-02-28', N'Nữ', 'ngox@mail.com', '2024-02-15', N'Thường', N'Hoạt động', N'Q3', '4444444443', '0924444444', 'CN002'),
+('KH025', N'Mai Trọng Y', '1992-06-05', N'Nam', 'maiy@mail.com', '2024-03-01', N'VIP', N'Khóa', N'TD', '5555555554', '0925555555', 'CN003'),
+('KH026', N'Trịnh Xuân Z', '1995-09-09', N'Nữ', 'trinhz@mail.com', '2024-03-10', N'Thường', N'Hoạt động', N'Q1', '6666666665', '0926666666', 'CN001'),
+('KH027', N'Hồ Trọng AA', '1986-12-12', N'Nam', 'hoaa@mail.com', '2024-04-05', N'VIP', N'Hoạt động', N'Q3', '7777777776', '0927777777', 'CN002'),
+('KH028', N'Tô Kim BB', '1994-03-03', N'Nữ', 'tobb@mail.com', '2024-04-15', N'Thường', N'Hoạt động', N'TD', '8888888887', '0928888888', 'CN003'),
+('KH029', N'Đặng Minh CC', '1991-07-17', N'Nam', 'dangcc@mail.com', '2024-05-01', N'Thường', N'Hoạt động', N'Q1', '9999999998', '0929999999', 'CN001'),
+('KH030', N'Châu Ánh DD', '1996-10-28', N'Nữ', 'chaudd@mail.com', '2024-05-15', N'VIP', N'Hoạt động', N'Q3', '1010101019', '0930000000', 'CN002'),
+
+-- --- BATCH 4: Khách hàng mới (31 - 40) ---
+('KH031', N'Phùng Bá EE', '1987-04-01', N'Nam', 'phunge@mail.com', '2024-06-01', N'VIP', N'Hoạt động', N'TD', '1111111118', '0931111111', 'CN003'),
+('KH032', N'Lâm Thảo FF', '1999-05-20', N'Nữ', 'lamf@mail.com', '2024-06-10', N'Thường', N'Hoạt động', N'Q1', '2222222229', '0932222222', 'CN001'),
+('KH033', N'Giáp Bá GG', '1993-08-11', N'Nam', 'giapg@mail.com', '2024-07-05', N'Thường', N'Khóa', N'Q3', '3333333330', '0933333333', 'CN002'),
+('KH034', N'Khuất Mai HH', '1996-12-05', N'Nữ', 'khuath@mail.com', '2024-07-15', N'VIP', N'Hoạt động', N'TD', '4444444441', '0934444444', 'CN003'),
+('KH035', N'Nguyễn Đức II', '1988-03-25', N'Nam', 'nguyeni@mail.com', '2024-08-01', N'Thường', N'Hoạt động', N'Q1', '5555555552', '0935555555', 'CN001'),
+('KH036', N'Trần Lê JJ', '1990-09-19', N'Nữ', 'tranj@mail.com', '2024-08-10', N'VIP', N'Hoạt động', N'Q3', '6666666663', '0936666666', 'CN002'),
+('KH037', N'Lý Trung KK', '1995-01-29', N'Nam', 'lykk@mail.com', '2024-09-05', N'Thường', N'Hoạt động', N'TD', '7777777774', '0937777777', 'CN003'),
+('KH038', N'Phạm Bích LL', '1998-04-14', N'Nữ', 'phamll@mail.com', '2024-09-15', N'Thường', N'Hoạt động', N'Q1', '8888888885', '0938888888', 'CN001'),
+('KH039', N'Hoàng Anh MM', '1992-07-07', N'Nam', 'hoangm@mail.com', '2024-10-01', N'VIP', N'Hoạt động', N'Q3', '9999999996', '0939999999', 'CN002'),
+('KH040', N'Đỗ Thanh NN', '1999-11-30', N'Nữ', 'donn@mail.com', '2024-10-10', N'Thường', N'Hoạt động', N'TD', '1010101017', '0940000000', 'CN003');
+
+INSERT INTO KhachHang (maKhachHang, tenKhachHang, ngaySinh, gioiTinh, email, ngayDangKy, loaiKhachHang, trangThai, diaChi, soCMND, soDienThoai, maChiNhanh) 
+VALUES
+('KH999', N'Ngân Hàng Phœnix Bank', '2000-01-01', N'Khác', 'bank@phoenix.com', GETDATE(), N'N?i b?', N'Ho?t d?ng', N'Tr? s? chính', '000000000', '0000000000', 'CN001');
+-- ============================
+-- 4. CHÈN D? LI?U VÀO B?NG TÀI KHO?N
+-- ============================
+-- Đảm bảo bạn đang sử dụng database NganHang trước khi chạy đoạn này
+-- USE NganHang; 
+-- GO 
+
+-- ============================
+-- 4. CHÈN DỮ LIỆU VÀO BẢNG TÀI KHOẢN (20 TÀI KHOẢN)
+-- Đã đa dạng hóa ngày mở tài khoản (ngayMo)
+-- ============================
+INSERT INTO TaiKhoan (soTaiKhoan, ngayMo, maKhachHang, soDu)
+VALUES
+-- --- BATCH 1: Tài khoản từ 2020 - 2022 ---
+('TK001', '2020-03-15', 'KH001', 55000000.00), -- VIP (Sớm)
+('TK002', '2020-09-20', 'KH002', 12500000.00),
+('TK003', '2021-01-10', 'KH003', 18000000.00), -- VIP
+('TK004', '2021-04-25', 'KH004', 30000000.00),
+('TK005', '2021-08-01', 'KH005', 48000000.00), -- VIP
+('TK006', '2022-01-10', 'KH006', 7500000.00),
+('TK007', '2022-03-11', 'KH007', 29000000.00), -- VIP
+('TK008', '2022-05-12', 'KH008', 2500000.00),
+('TK009', '2022-08-18', 'KH009', 18000000.00), -- VIP
+('TK010', '2022-11-25', 'KH010', 27000000.00),
+
+-- --- BATCH 2: Tài khoản từ 2023 - 2024 ---
+('TK011', '2023-01-05', 'KH011', 120000000.00), -- VIP (Số dư lớn)
+('TK012', '2023-03-17', 'KH012', 6500000.00),
+('TK013', '2023-05-20', 'KH013', 35000000.00), -- VIP
+('TK014', '2023-07-09', 'KH014', 1500000.00),
+('TK015', '2023-09-10', 'KH015', 52000000.00), -- VIP
+('TK016', '2023-11-03', 'KH016', 9000000.00),
+('TK017', '2024-01-28', 'KH017', 22000000.00), -- VIP
+('TK018', '2024-03-15', 'KH018', 4000000.00),
+('TK019', '2024-05-01', 'KH019', 16000000.00), -- VIP
+('TK020', '2024-07-22', 'KH020', 8500000.00);
+
+
+
+INSERT INTO TaiKhoan (soTaiKhoan, ngayMo, maKhachHang, soDu) 
+VALUES
+('TK999', GETDATE(), 'KH999', 9999999999999.00); -- S? du r?t l?n (qu? d? tr?)
+
+-- ============================
+-- 5. CHÈN D? LI?U VÀO B?NG LO?I TH?
+-- ============================
+INSERT INTO LoaiThe (maLoaiThe, tenLoaiThe)
+VALUES
+('LT01', N'Ghi nợ nội địa'),
+('LT02', N'Ghi nợ quốc tế'),
+('LT03', N'Tín dụng');
+
+
+-- ============================
+-- 6. CHÈN D? LI?U VÀO B?NG TH?
+-- ============================
+-- Đảm bảo bạn đang sử dụng database NganHang trước khi chạy đoạn này
+-- USE NganHang; 
+-- GO 
+
+-- ============================
+-- 6. CHÈN DỮ LIỆU VÀO BẢNG THẺ ATM (10 THẺ)
+-- Sử dụng các Loại thẻ từ LT01 đến LT05 và TK001 đến TK010
+-- ============================
+-- Đảm bảo rằng các bảng LoaiThe và TaiKhoan đã tồn tại và chứa các khóa ngoại LT01-LT03 và TK001-TK010.
+
+INSERT INTO TheATM (soThe, ngayMoThe, ngayHetHan, maLoaiThe, soTaiKhoan)
+VALUES
+-- --- BATCH 1: Thẻ đã có (Sử dụng 5 Loại thẻ) ---
+('TH001', '2024-01-10', '2027-01-10', 'LT01', 'TK001'), -- Ghi nợ nội địa
+('TH002', '2024-02-11', '2027-02-11', 'LT02', 'TK002'), -- Ghi nợ quốc tế
+('TH003', '2025-03-12', '2028-03-12', 'LT03', 'TK003'), -- Tín dụng tiêu chuẩn
+('TH004', '2025-04-15', '2028-04-15', 'LT02', 'TK004'), -- Tín dụng hạng vàng
+('TH005', '2024-05-12', '2027-05-12', 'LT01', 'TK005'), -- Thẻ trả trước
+
+-- --- BATCH 2: Thẻ mới (Sử dụng TK006 - TK010) ---
+('TH006', '2024-11-20', '2027-11-20', 'LT01', 'TK006'), -- Ghi nợ nội địa
+('TH007', '2025-01-01', '2028-01-01', 'LT02', 'TK007'), -- Ghi nợ quốc tế
+('TH008', '2026-06-30', '2029-06-30', 'LT03', 'TK008'), -- Tín dụng tiêu chuẩn
+('TH009', '2026-12-31', '2029-12-31', 'LT01', 'TK009'), -- Tín dụng hạng vàng
+('TH010', '2025-08-01', '2028-08-01', 'LT02', 'TK010'); -- Thẻ trả trước
+GO
+
+
+-- ============================
+-- 7. CHÈN D? LI?U VÀO B?NG GIAO D?CH
+-- ============================
+-- Đảm bảo bạn đang sử dụng database NganHang trước khi chạy đoạn này
+-- USE NganHang; 
+-- GO 
+
+-- Xóa các giao dịch cũ trước khi chèn mới (Nếu cần thiết, nếu không thì bỏ qua)
+-- DELETE FROM GiaoDich WHERE maGiaoDich LIKE 'GD%'; 
+
+-- ============================
+-- 7. CHÈN DỮ LIỆU VÀO BẢNG GIAO DỊCH (50 GIAO DỊCH)
+-- Đã sửa lỗi ký tự có dấu và đa dạng hóa Ngày, Loại GD
+-- ============================
+INSERT INTO GiaoDich (maGiaoDich, ngayGiaoDich, soTienGiaoDich, trangThai, taiKhoanNguon, taiKhoanDich, moTa, loaiGiaoDich) 
+VALUES
+-- --- BATCH 1: ĐẦU NĂM 2023 (Chuyển khoản, Nộp, Rút) ---
+('GD001', '2023-01-01', 2000000.00, N'Thành công', 'TK001', 'TK002', N'Chuyển tiền đầu năm', N'Chuyển khoản'),
+('GD002', '2023-01-02', 1500000.00, N'Thành công', 'TK999', 'TK003', N'Nộp tiền mặt tại quầy', N'Nộp tiền'),
+('GD003', '2023-01-03', 5000000.00, N'Thành công', 'TK003', 'TK004', N'Gửi tiền tiết kiệm', N'Chuyển khoản'),
+('GD004', '2023-01-04', 2200000.00, N'Thành công', 'TK004', 'TK005', N'Mua hàng online', N'Chuyển khoản'),
+('GD005', '2023-01-05', 1000000.00, N'Thất bại', 'TK005', 'TK999', N'Lỗi hệ thống ATM', N'Rút tiền'), -- TK999 là TK Đích khi Rút tiền
+('GD006', '2023-01-06', 2300000.00, N'Thành công', 'TK006', 'TK007', N'Chuyển tiền lương', N'Chuyển khoản'),
+('GD007', '2023-01-07', 900000.00, N'Thành công', 'TK999', 'TK008', N'Nộp tiền qua ứng dụng', N'Nộp tiền'),
+('GD008', '2023-01-08', 1200000.00, N'Thành công', 'TK009', 'TK999', N'Rút tiền tại quầy', N'Rút tiền'),
+('GD009', '2023-01-09', 3000000.00, N'Thành công', 'TK010', 'TK001', N'Trả nợ cá nhân', N'Chuyển khoản'),
+('GD010', '2023-01-10', 2200000.00, N'Thành công', 'TK011', 'TK012', N'Thanh toán học phí', N'Chuyển khoản'),
+
+-- --- BATCH 2: QUÝ 1 2023 (Thêm giao dịch thất bại và chờ xử lý) ---
+('GD011', '2023-02-01', 1800000.00, N'Thành công', 'TK013', 'TK014', N'Chuyển tiền vay', N'Chuyển khoản'),
+('GD012', '2023-02-02', 2000000.00, N'Thành công', 'TK999', 'TK015', N'Nộp tiền từ thẻ khác', N'Nộp tiền'),
+('GD013', '2023-02-03', 3400000.00, N'Thành công', 'TK016', 'TK017', N'Gửi tiết kiệm', N'Chuyển khoản'),
+('GD014', '2023-02-04', 900000.00, N'Thành công', 'TK018', 'TK999', N'Rút tiền ATM', N'Rút tiền'),
+('GD015', '2023-02-05', 700000.00, N'Thất bại', 'TK019', 'TK020', N'Lỗi số dư', N'Chuyển khoản'),
+('GD016', '2023-03-01', 2500000.00, N'Thành công', 'TK006', 'TK001', N'Chuyển khoản cá nhân', N'Chuyển khoản'),
+('GD017', '2023-03-02', 1200000.00, N'Thành công', 'TK999', 'TK007', N'Nộp tiền mặt', N'Nộp tiền'),
+('GD018', '2023-03-03', 800000.00, N'Thành công', 'TK008', 'TK999', N'Rút tiền quầy', N'Rút tiền'),
+('GD019', '2023-03-04', 5200000.00, N'Thành công', 'TK009', 'TK010', N'Chuyển khoản kinh doanh', N'Chuyển khoản'),
+('GD020', '2023-03-05', 3000000.00, N'Đang xử lý', 'TK010', 'TK011', N'Thanh toán tiền nhà', N'Chuyển khoản'),
+
+-- --- BATCH 3: QUÝ 2 2023 (Đa dạng hóa hơn về loại giao dịch và thời gian) ---
+('GD021', '2023-04-15', 1000000.00, N'Thành công', 'TK012', 'TK013', N'Chuyển tiền sinh hoạt', N'Chuyển khoản'),
+('GD022', '2023-04-20', 2000000.00, N'Thành công', 'TK999', 'TK014', N'Nộp tiền online', N'Nộp tiền'),
+('GD023', '2023-05-01', 900000.00, N'Thành công', 'TK015', 'TK999', N'Rút tiền khẩn cấp', N'Rút tiền'),
+('GD024', '2023-05-15', 3500000.00, N'Thành công', 'TK016', 'TK017', N'Mua điện thoại', N'Chuyển khoản'),
+('GD025', '2023-06-01', 1700000.00, N'Thành công', 'TK999', 'TK018', N'Nộp tiền bảo hiểm', N'Nộp tiền'),
+('GD026', '2023-06-15', 800000.00, N'Đang xử lý', 'TK019', 'TK999', N'Rút tiền không thành công', N'Rút tiền'),
+('GD027', '2023-07-01', 4500000.00, N'Thành công', 'TK020', 'TK001', N'Đầu tư chứng khoán', N'Chuyển khoản'),
+('GD028', '2023-07-10', 1100000.00, N'Thành công', 'TK002', 'TK003', N'Thanh toán dịch vụ', N'Chuyển khoản'),
+('GD029', '2023-08-05', 6000000.00, N'Thành công', 'TK004', 'TK005', N'Vay vốn kinh doanh', N'Chuyển khoản'),
+('GD030', '2023-08-20', 1400000.00, N'Đang xử lý', 'TK006', 'TK999', N'Rút tiền', N'Rút tiền'),
+
+-- --- BATCH 4: CUỐI NĂM 2023 & ĐẦU 2024 (Đa dạng tài khoản) ---
+('GD031', '2023-09-01', 1900000.00, N'Thành công', 'TK007', 'TK008', N'Mua sắm nội thất', N'Chuyển khoản'),
+('GD032', '2023-09-15', 2800000.00, N'Thành công', 'TK009', 'TK010', N'Thanh toán vé máy bay', N'Chuyển khoản'),
+('GD033', '2023-10-01', 3200000.00, N'Thành công', 'TK999', 'TK011', N'Nộp tiền từ chi nhánh', N'Nộp tiền'),
+('GD034', '2023-10-15', 500000.00, N'Thất bại', 'TK012', 'TK999', N'Rút tiền thẻ', N'Rút tiền'),
+('GD035', '2023-11-01', 750000.00, N'Thành công', 'TK013', 'TK014', N'Quà tặng', N'Chuyển khoản'),
+('GD036', '2023-11-20', 1300000.00, N'Đang xử lý', 'TK015', 'TK016', N'Thanh toán điện nước', N'Chuyển khoản'),
+('GD037', '2023-12-05', 4100000.00, N'Thành công', 'TK017', 'TK018', N'Mua laptop', N'Chuyển khoản'),
+('GD038', '2024-01-01', 800000.00, N'Thành công', 'TK019', 'TK999', N'Rút tiền mừng năm mới', N'Rút tiền'),
+('GD039', '2024-01-15', 3800000.00, N'Thành công', 'TK999', 'TK020', N'Nộp tiền tích lũy', N'Nộp tiền'),
+('GD040', '2024-02-01', 1600000.00, N'Thành công', 'TK001', 'TK010', N'Chuyển tiền mua sắm Tết', N'Chuyển khoản'),
+
+-- --- BATCH 5: 2024 (Gần nhất) ---
+('GD041', '2024-02-15', 250000.00, N'Thành công', 'TK002', 'TK004', N'Thanh toán cà phê', N'Chuyển khoản'),
+('GD042', '2024-03-01', 50000000.00, N'Thành công', 'TK003', 'TK011', N'Vay vốn kinh doanh', N'Chuyển khoản'),
+('GD043', '2024-03-15', 100000.00, N'Thành công', 'TK004', 'TK999', N'Rút tiền lẻ', N'Rút tiền'),
+('GD044', '2024-04-01', 1100000.00, N'Thành công', 'TK999', 'TK006', N'Nộp tiền học phí', N'Nộp tiền'),
+('GD045', '2024-04-15', 3000000.00, N'Đang xử lý', 'TK007', 'TK012', N'Chuyển tiền dự án', N'Chuyển khoản'),
+('GD046', '2024-05-01', 1750000.00, N'Thành công', 'TK008', 'TK013', N'Mua đồ gia dụng', N'Chuyển khoản'),
+('GD047', '2024-05-15', 4200000.00, N'Thành công', 'TK009', 'TK014', N'Chuyển tiền đầu tư', N'Chuyển khoản'),
+('GD048', '2024-06-01', 280000.00, N'Thành công', 'TK010', 'TK999', N'Rút tiền chi tiêu', N'Rút tiền'),
+('GD049', '2024-06-15', 9000000.00, N'Thành công', 'TK999', 'TK015', N'Nộp tiền mặt lớn', N'Nộp tiền'),
+('GD050', '2024-07-01', 500000.00, N'Thất bại', 'TK011', 'TK016', N'Thanh toán dịch vụ', N'Chuyển khoản');
+
+
+USE NganHang;
+GO
+
+-- CẬP NHẬT ĐỊA CHỈ CHO TỪNG KHÁCH HÀNG (40 HÀNG)
+UPDATE KhachHang
+SET diaChi =
+    CASE maKhachHang
+        -- CN001 (Hà Nội)
+        WHEN 'KH001' THEN N'Số 12A, Ngõ 45, Đường Nguyễn Khang, Q. Cầu Giấy, Hà Nội'
+        WHEN 'KH004' THEN N'Căn 301, Tầng 3, Tòa S2, KĐT Vinhomes, Q. Long Biên, Hà Nội'
+        WHEN 'KH007' THEN N'Nhà 9D, Ngõ 102, Phố Láng Hạ, Q. Đống Đa, Hà Nội'
+        WHEN 'KH010' THEN N'Phòng 505, Tòa nhà D, Đường Trần Thái Tông, Q. Cầu Giấy, Hà Nội'
+        WHEN 'KH011' THEN N'Số 21, Ngách 50, Phố Chùa Láng, Q. Đống Đa, Hà Nội'
+        WHEN 'KH014' THEN N'Số 7B, Đường Thanh Niên, Phường Yên Phụ, Q. Tây Hồ, Hà Nội'
+        WHEN 'KH017' THEN N'Căn 802, Chung cư N05, Đường Hoàng Đạo Thúy, Q. Cầu Giấy, Hà Nội'
+        WHEN 'KH020' THEN N'Số 35, Ngõ 18, Đường Nguyễn Văn Cừ, Q. Long Biên, Hà Nội'
+        WHEN 'KH023' THEN N'Số 120, Phố Trần Hưng Đạo, Q. Hoàn Kiếm, Hà Nội'
+        WHEN 'KH026' THEN N'Căn 15B, Tòa nhà Packexim, Phường Phú Thượng, Q. Tây Hồ, Hà Nội'
+        WHEN 'KH029' THEN N'Số 28, Ngõ 99, Đường Phạm Hùng, Q. Cầu Giấy, Hà Nội'
+        WHEN 'KH032' THEN N'Nhà 10, Tập thể Nghĩa Tân, Q. Cầu Giấy, Hà Nội'
+        WHEN 'KH035' THEN N'Căn 703, Tòa nhà V, Đường Lạc Long Quân, Q. Tây Hồ, Hà Nội'
+        WHEN 'KH038' THEN N'Số 11, Ngõ 30, Phố Cửa Bắc, Q. Ba Đình, Hà Nội'
+        
+        -- CN002 (TP.HCM)
+        WHEN 'KH002' THEN N'Số 55, Đường Trần Quý Khoách, Phường Tân Định, Q. 1, TP.HCM'
+        WHEN 'KH005' THEN N'Căn 1102, Tòa nhà The Manor, Đường Nguyễn Hữu Cảnh, Q. Bình Thạnh, TP.HCM'
+        WHEN 'KH008' THEN N'Số 123/15, Hẻm 40, Đường Nguyễn Thị Minh Khai, Q. 3, TP.HCM'
+        WHEN 'KH012' THEN N'Số 8K, Đường Trần Hưng Đạo, Phường 2, Q. 5, TP.HCM'
+        WHEN 'KH015' THEN N'Căn 601, Chung cư 4S Linh Đông, Q. Thủ Đức, TP.HCM'
+        WHEN 'KH018' THEN N'Số 99, Đường Bùi Thị Xuân, Phường 1, Q. Tân Bình, TP.HCM'
+        WHEN 'KH021' THEN N'Số 77A, Đường Cách Mạng Tháng 8, P. 6, Q. 3, TP.HCM'
+        WHEN 'KH024' THEN N'Căn 1505, Tòa nhà Estella, Đường Song Hành, Q. 2, TP.HCM'
+        WHEN 'KH027' THEN N'Số 10, Hẻm 25, Đường Tô Hiến Thành, P. 13, Q. 10, TP.HCM'
+        WHEN 'KH030' THEN N'Số 25/8, Đường Nguyễn Gia Trí, P. 25, Q. Bình Thạnh, TP.HCM'
+        WHEN 'KH033' THEN N'Căn 12C, Chung cư Ehome 3, Đường Hồ Học Lãm, Q. Bình Tân, TP.HCM'
+        WHEN 'KH036' THEN N'Số 145, Đường Âu Cơ, P. 14, Q. 11, TP.HCM'
+        WHEN 'KH039' THEN N'Căn 909, Tòa nhà Saigon Pearl, Đường Điện Biên Phủ, Q. Bình Thạnh, TP.HCM'
+        
+        -- CN003 (Đà Nẵng)
+        WHEN 'KH003' THEN N'Số 2B, Đường Trần Phú, P. Hải Châu 1, Q. Hải Châu, Đà Nẵng'
+        WHEN 'KH006' THEN N'Lô B5, Khu đô thị Phước Lý, P. Hòa Minh, Q. Liên Chiểu, Đà Nẵng'
+        WHEN 'KH009' THEN N'Căn 403, Chung cư FPT Plaza 1, P. Hòa Hải, Q. Ngũ Hành Sơn, Đà Nẵng'
+        WHEN 'KH013' THEN N'Số 101, Đường Lê Lợi, P. Hải Châu 1, Q. Hải Châu, Đà Nẵng'
+        WHEN 'KH016' THEN N'Số 33, Đường Nguyễn Tri Phương, P. Vĩnh Trung, Q. Thanh Khê, Đà Nẵng'
+        WHEN 'KH019' THEN N'Lô D18, Khu dân cư Phước Lý, Q. Liên Chiểu, Đà Nẵng'
+        WHEN 'KH022' THEN N'Số 5, Đường Mỹ Khê 4, P. Phước Mỹ, Q. Sơn Trà, Đà Nẵng'
+        WHEN 'KH025' THEN N'Căn 7A, Khu biệt thự FPT, P. Hòa Hải, Q. Ngũ Hành Sơn, Đà Nẵng'
+        WHEN 'KH028' THEN N'Số 130, Đường 2 Tháng 9, P. Hòa Cường Bắc, Q. Hải Châu, Đà Nẵng'
+        WHEN 'KH031' THEN N'Số 88, Đường Võ Nguyên Giáp, P. Phước Mỹ, Q. Sơn Trà, Đà Nẵng'
+        WHEN 'KH034' THEN N'Lô A9, KĐT Nam Việt Á, P. Khuê Mỹ, Q. Ngũ Hành Sơn, Đà Nẵng'
+        WHEN 'KH037' THEN N'Số 66, Đường Núi Thành, P. Hòa Thuận Đông, Q. Hải Châu, Đà Nẵng'
+        WHEN 'KH040' THEN N'Căn 15, Khu đô thị sinh thái, P. Hòa Xuân, Q. Cẩm Lệ, Đà Nẵng'
+        
+        ELSE diaChi 
+    END;
+GO
+
+USE NganHang;
+GO
+
+-- CẬP NHẬT ĐỊA CHỈ CHO TỪNG NHÂN VIÊN (40 HÀNG)
+UPDATE NhanVien
+SET diaChi =
+    CASE maNhanVien
+        -- CN001 (Hà Nội)
+        WHEN 'NV001' THEN N'Phòng 201, Tòa nhà 34T, Phố Hoàng Đạo Thúy, Q. Cầu Giấy, Hà Nội'
+        WHEN 'NV004' THEN N'Số 50B, Ngách 10, Phố Kim Mã, Q. Ba Đình, Hà Nội'
+        WHEN 'NV007' THEN N'Căn 707, Chung cư StarCity, Đường Lê Văn Lương, Q. Thanh Xuân, Hà Nội'
+        WHEN 'NV010' THEN N'Số 18, Ngõ 77, Phố Bùi Xương Trạch, Q. Hoàng Mai, Hà Nội'
+        WHEN 'NV011' THEN N'Số 30, Ngõ 90, Phố Thụy Khuê, Q. Tây Hồ, Hà Nội'
+        WHEN 'NV014' THEN N'Phòng 5A, Tòa nhà MIPEC, Đường Tây Sơn, Q. Đống Đa, Hà Nội'
+        WHEN 'NV017' THEN N'Số 100, Đường Âu Cơ, Q. Tây Hồ, Hà Nội'
+        WHEN 'NV020' THEN N'Căn 902, Tòa nhà Vinaconex, Đường Khuất Duy Tiến, Q. Thanh Xuân, Hà Nội'
+        WHEN 'NV023' THEN N'Số 42, Ngách 11, Phố Thái Hà, Q. Đống Đa, Hà Nội'
+        WHEN 'NV026' THEN N'Phòng 12B, Tòa nhà Sông Đà, Đường Phạm Hùng, Q. Nam Từ Liêm, Hà Nội'
+        WHEN 'NV029' THEN N'Số 5, Ngõ 25, Phố Vũ Ngọc Phan, Q. Đống Đa, Hà Nội'
+        WHEN 'NV032' THEN N'Căn 808, Chung cư CT4, Đường Mễ Trì, Q. Nam Từ Liêm, Hà Nội'
+        WHEN 'NV035' THEN N'Số 15, Đường Đinh Tiên Hoàng, Q. Hoàn Kiếm, Hà Nội'
+        WHEN 'NV038' THEN N'Phòng 301, Tòa nhà L, Đường Bà Triệu, Q. Hai Bà Trưng, Hà Nội'
+        
+        -- CN002 (TP.HCM)
+        WHEN 'NV002' THEN N'Số 88/1A, Đường Cô Giang, P. Cầu Ông Lãnh, Q. 1, TP.HCM'
+        WHEN 'NV005' THEN N'Căn 1501, Tòa nhà Bitexco, Đường Hải Triều, Q. 1, TP.HCM'
+        WHEN 'NV008' THEN N'Số 12, Đường Vạn Kiếp, P. 3, Q. Bình Thạnh, TP.HCM'
+        WHEN 'NV012' THEN N'Phòng 4D, Tòa nhà Central Plaza, Đường Lê Lợi, Q. 1, TP.HCM'
+        WHEN 'NV015' THEN N'Số 210, Đường Phan Xích Long, P. 2, Q. Phú Nhuận, TP.HCM'
+        WHEN 'NV018' THEN N'Căn 1003, Chung cư Scenic Valley, Q. 7, TP.HCM'
+        WHEN 'NV021' THEN N'Số 50/8, Đường Phạm Ngũ Lão, P. Bến Thành, Q. 1, TP.HCM'
+        WHEN 'NV024' THEN N'Phòng 601, Tòa nhà Lotte Mart, Đường Nguyễn Thị Thập, Q. 7, TP.HCM'
+        WHEN 'NV027' THEN N'Số 13, Hẻm 22, Đường Cao Thắng, P. 2, Q. 3, TP.HCM'
+        WHEN 'NV030' THEN N'Căn 11B, Khu dân cư Him Lam, P. Tân Hưng, Q. 7, TP.HCM'
+        WHEN 'NV033' THEN N'Số 75, Đường Nguyễn Văn Đậu, P. 5, Q. Bình Thạnh, TP.HCM'
+        WHEN 'NV036' THEN N'Phòng 2D, Tòa nhà Saigon Centre, Đường Lê Lợi, Q. 1, TP.HCM'
+        WHEN 'NV039' THEN N'Số 99, Đường Đinh Bộ Lĩnh, P. 26, Q. Bình Thạnh, TP.HCM'
+        
+        -- CN003 (Đà Nẵng)
+        WHEN 'NV003' THEN N'Số 10, Đường Nguyễn Tất Thành, P. Xuân Hà, Q. Thanh Khê, Đà Nẵng'
+        WHEN 'NV006' THEN N'Phòng 305, Tòa nhà T, Đường Nguyễn Văn Linh, Q. Hải Châu, Đà Nẵng'
+        WHEN 'NV009' THEN N'Số 45, Đường 3 Tháng 2, P. Thuận Phước, Q. Hải Châu, Đà Nẵng'
+        WHEN 'NV013' THEN N'Căn 8C, Chung cư Lakeside Tower, Q. Liên Chiểu, Đà Nẵng'
+        WHEN 'NV016' THEN N'Số 20, Đường Bạch Đằng, P. Thạch Thang, Q. Hải Châu, Đà Nẵng'
+        WHEN 'NV019' THEN N'Phòng 502, Tòa nhà FPT, Khu công nghệ cao, Q. Ngũ Hành Sơn, Đà Nẵng'
+        WHEN 'NV022' THEN N'Số 7, Đường Hà Bổng, P. Phước Mỹ, Q. Sơn Trà, Đà Nẵng'
+        WHEN 'NV025' THEN N'Căn 1A, Biệt thự ven sông, P. Hòa Xuân, Q. Cẩm Lệ, Đà Nẵng'
+        WHEN 'NV028' THEN N'Số 15, Đường Hoàng Sa, P. Phước Mỹ, Q. Sơn Trà, Đà Nẵng'
+        WHEN 'NV031' THEN N'Phòng 601, Tòa nhà VNPT, Đường Hùng Vương, Q. Hải Châu, Đà Nẵng'
+        WHEN 'NV034' THEN N'Số 12, Lô J, Đường Tôn Đức Thắng, Q. Liên Chiểu, Đà Nẵng'
+        WHEN 'NV037' THEN N'Căn 20D, Chung cư The Point, P. Khuê Mỹ, Q. Ngũ Hành Sơn, Đà Nẵng'
+        WHEN 'NV040' THEN N'Số 89, Đường Trần Hữu Độ, P. Khuê Trung, Q. Cẩm Lệ, Đà Nẵng'
+        
+        ELSE diaChi 
+    END;
+GO
+-- ============================
+-- 1. L?Y D? LI?U T? B?NG CHI NHÁNH
+-- ============================
+SELECT * FROM ChiNhanh;
+GO
+
+-- ============================
+-- 2. L?Y D? LI?U T? B?NG NHÂN VIÊN
+-- ============================
+SELECT * FROM NhanVien;
+GO
+
+-- ============================
+-- 3. L?Y D? LI?U T? B?NG KHÁCH HÀNG
+-- ============================
+SELECT * FROM KhachHang;
+GO
+
+-- ============================
+-- 4. L?Y D? LI?U T? B?NG TÀI KHO?N
+-- ============================
+SELECT * FROM TaiKhoan;
+GO
+
+-- ============================
+-- 5. L?Y D? LI?U T? B?NG LO?I TH?
+-- ============================
+SELECT * FROM LoaiThe;
+GO
+
+-- ============================
+-- 6. L?Y D? LI?U T? B?NG TH?
+-- ============================
+SELECT * FROM TheATM;
+GO
+
+-- ============================
+-- 7. L?Y D? LI?U T? B?NG GIAO D?CH
+-- ============================
+SELECT * FROM GiaoDich;
+GO
+-- ============================
+
+
+/* ============================================================
+   1. CHI NHÁNH
+   ============================================================ */
+
+-- 1. Thêm chi nhánh
+CREATE PROC sp_themChiNhanh
+    @maChiNhanh VARCHAR(10),
+    @tenChiNhanh NVARCHAR(100),
+    @diaChi NVARCHAR(200),
+    @soDienThoai NVARCHAR(20)
+AS
+BEGIN
+    INSERT INTO ChiNhanh (maChiNhanh, tenChiNhanh, diaChi, soDienThoai)
+    VALUES (@maChiNhanh, @tenChiNhanh, @diaChi, @soDienThoai);
+END;
+GO
+
+-- 2. C?p nh?t chi nhánh
+CREATE PROC sp_capNhatChiNhanh
+    @maChiNhanh VARCHAR(10),
+    @tenChiNhanh NVARCHAR(100),
+    @diaChi NVARCHAR(200),
+    @soDienThoai NVARCHAR(20)
+AS
+BEGIN
+    UPDATE ChiNhanh
+    SET tenChiNhanh = @tenChiNhanh,
+        diaChi = @diaChi,
+        soDienThoai = @soDienThoai
+    WHERE maChiNhanh = @maChiNhanh;
+END;
+GO
+
+-- 3. Xóa chi nhánh
+CREATE PROC sp_xoaChiNhanh
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM ChiNhanh WHERE maChiNhanh = @maChiNhanh;
+END;
+GO
+
+-- 4. L?y chi nhánh theo mã
+CREATE PROC sp_layChiNhanhTheoMa
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM ChiNhanh WHERE maChiNhanh = @maChiNhanh;
+END;
+GO
+
+-- 5. L?y danh sách chi nhánh
+CREATE PROC sp_layDanhSachChiNhanh
+AS
+BEGIN
+    SELECT * FROM ChiNhanh;
+END;
+GO
+
+/* ============================================================
+   2. NHÂN VIÊN
+   ============================================================ */
+
+-- 1. Thêm nhân viên
+CREATE PROC sp_themNhanVien
+    @maNhanVien VARCHAR(10),
+    @tenNhanVien NVARCHAR(100),
+    @ngaySinh DATE,
+    @diaChi NVARCHAR(200),
+    @soDienThoai NVARCHAR(20),
+    @gioiTinh NVARCHAR(10),
+    @email NVARCHAR(100),
+    @ngayVaoLam DATE,
+    @viTri NVARCHAR(50),
+    @trangThai NVARCHAR(20),
+    @quyenHan NVARCHAR(50),
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    INSERT INTO NhanVien(maNhanVien, tenNhanVien, ngaySinh, diaChi, soDienThoai, gioiTinh,
+                         email, ngayVaoLam, viTri, trangThai, quyenHan, maChiNhanh)
+    VALUES (@maNhanVien, @tenNhanVien, @ngaySinh, @diaChi, @soDienThoai, @gioiTinh,
+            @email, @ngayVaoLam, @viTri, @trangThai, @quyenHan, @maChiNhanh);
+END;
+GO
+
+-- 2. C?p nh?t nhân viên
+CREATE PROC sp_capNhatNhanVien
+    @maNhanVien VARCHAR(10),
+    @tenNhanVien NVARCHAR(100),
+    @ngaySinh DATE,
+    @diaChi NVARCHAR(200),
+    @soDienThoai NVARCHAR(20),
+    @gioiTinh NVARCHAR(10),
+    @email NVARCHAR(100),
+    @ngayVaoLam DATE,
+    @viTri NVARCHAR(50),
+    @trangThai NVARCHAR(20),
+    @quyenHan NVARCHAR(50),
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    UPDATE NhanVien
+    SET tenNhanVien = @tenNhanVien,
+        ngaySinh = @ngaySinh,
+        diaChi = @diaChi,
+        soDienThoai = @soDienThoai,
+        gioiTinh = @gioiTinh,
+        email = @email,
+        ngayVaoLam = @ngayVaoLam,
+        viTri = @viTri,
+        trangThai = @trangThai,
+        quyenHan = @quyenHan,
+        maChiNhanh = @maChiNhanh
+    WHERE maNhanVien = @maNhanVien;
+END;
+GO
+
+-- 3. Xóa nhân viên
+CREATE PROC sp_xoaNhanVien
+    @maNhanVien VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM NhanVien WHERE maNhanVien = @maNhanVien;
+END;
+GO
+
+-- 4. L?y theo mã
+CREATE PROC sp_layNhanVienTheoMa
+    @maNhanVien VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM NhanVien WHERE maNhanVien = @maNhanVien;
+END;
+GO
+
+-- 5. L?y danh sách
+CREATE PROC sp_layDanhSachNhanVien
+AS
+BEGIN
+    SELECT * FROM NhanVien;
+END;
+GO
+
+/* ============================================================
+   3. KHÁCH HÀNG
+   ============================================================ */
+
+-- 1. Thêm khách hàng
+CREATE PROC sp_themKhachHang
+    @maKhachHang VARCHAR(10),
+    @tenKhachHang NVARCHAR(100),
+    @ngaySinh DATE,
+    @diaChi NVARCHAR(200),
+    @soCMND NVARCHAR(20),
+    @soDienThoai NVARCHAR(20),
+    @email NVARCHAR(100),
+    @ngayDangKy DATE,
+    @gioiTinh NVARCHAR(10),
+    @loaiKhachHang NVARCHAR(50),
+    @trangThai NVARCHAR(20),
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    INSERT INTO KhachHang(maKhachHang, tenKhachHang, ngaySinh, diaChi, soCMND, soDienThoai,
+                          email, ngayDangKy, gioiTinh, loaiKhachHang, trangThai, maChiNhanh)
+    VALUES (@maKhachHang, @tenKhachHang, @ngaySinh, @diaChi, @soCMND, @soDienThoai,
+            @email, @ngayDangKy, @gioiTinh, @loaiKhachHang, @trangThai, @maChiNhanh);
+END;
+GO
+
+-- 2. C?p nh?t khách hàng
+CREATE PROC sp_capNhatKhachHang
+    @maKhachHang VARCHAR(10),
+    @tenKhachHang NVARCHAR(100),
+    @ngaySinh DATE,
+    @diaChi NVARCHAR(200),
+    @soCMND NVARCHAR(20),
+    @soDienThoai NVARCHAR(20),
+    @email NVARCHAR(100),
+    @ngayDangKy DATE,
+    @gioiTinh NVARCHAR(10),
+    @loaiKhachHang NVARCHAR(50),
+    @trangThai NVARCHAR(20),
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    UPDATE KhachHang
+    SET tenKhachHang = @tenKhachHang,
+        ngaySinh = @ngaySinh,
+        diaChi = @diaChi,
+        soCMND = @soCMND,
+        soDienThoai = @soDienThoai,
+        email = @email,
+        ngayDangKy = @ngayDangKy,
+        gioiTinh = @gioiTinh,
+        loaiKhachHang = @loaiKhachHang,
+        trangThai = @trangThai,
+        maChiNhanh = @maChiNhanh
+    WHERE maKhachHang = @maKhachHang;
+END;
+GO
+
+-- 3. Xóa
+CREATE PROC sp_xoaKhachHang
+    @maKhachHang VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM KhachHang WHERE maKhachHang = @maKhachHang;
+END;
+GO
+
+-- 4. L?y theo mã
+CREATE PROC sp_layKhachHangTheoMa
+    @maKhachHang VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM KhachHang WHERE maKhachHang = @maKhachHang;
+END;
+GO
+
+-- 5. L?y danh sách
+CREATE PROC sp_layDanhSachKhachHang
+AS
+BEGIN
+    SELECT * FROM KhachHang;
+END;
+GO
+/* ============================================================
+   4. TÀI KHO?N
+   ============================================================ */
+
+CREATE PROC sp_themTaiKhoan
+    @soTaiKhoan VARCHAR(10),
+    @ngayMo DATE,
+    @maKhachHang VARCHAR(10),
+    @soDu DECIMAL(15,2)
+AS
+BEGIN
+    INSERT INTO TaiKhoan(soTaiKhoan, ngayMo, maKhachHang, soDu)
+    VALUES (@soTaiKhoan, @ngayMo, @maKhachHang, @soDu);
+END;
+GO
+CREATE PROC sp_capNhatTaiKhoan
+    @soTaiKhoan VARCHAR(10),
+    @ngayMo DATE,
+    @maKhachHang VARCHAR(10)
+AS
+BEGIN
+    UPDATE TaiKhoan
+    SET ngayMo=@ngayMo, maKhachHang=@maKhachHang
+    WHERE soTaiKhoan=@soTaiKhoan;
+END;
+GO
+
+CREATE PROC sp_xoaTaiKhoan
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM TaiKhoan WHERE soTaiKhoan=@soTaiKhoan;
+END;
+GO
+
+CREATE PROC sp_layTaiKhoanTheoSo
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM TaiKhoan WHERE soTaiKhoan=@soTaiKhoan;
+END;
+GO
+
+CREATE PROC sp_layDanhSachTaiKhoan
+AS
+BEGIN
+    SELECT * FROM TaiKhoan;
+END;
+GO
+/* ============================================================
+   5. LO?I TH?
+   ============================================================ */
+
+CREATE PROC sp_themLoaiThe
+    @maLoaiThe VARCHAR(10),
+    @tenLoaiThe NVARCHAR(50)
+AS
+BEGIN
+    INSERT INTO LoaiThe(maLoaiThe, tenLoaiThe)
+    VALUES (@maLoaiThe, @tenLoaiThe);
+END;
+GO
+
+CREATE PROC sp_capNhatLoaiThe
+    @maLoaiThe VARCHAR(10),
+    @tenLoaiThe NVARCHAR(50)
+AS
+BEGIN
+    UPDATE LoaiThe SET tenLoaiThe=@tenLoaiThe WHERE maLoaiThe=@maLoaiThe;
+END;
+GO
+
+CREATE PROC sp_xoaLoaiThe
+    @maLoaiThe VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM LoaiThe WHERE maLoaiThe=@maLoaiThe;
+END;
+GO
+
+CREATE PROC sp_layLoaiTheTheoMa
+    @maLoaiThe VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM LoaiThe WHERE maLoaiThe=@maLoaiThe;
+END;
+GO
+
+CREATE PROC sp_layDanhSachLoaiThe
+AS
+BEGIN
+    SELECT * FROM LoaiThe;
+END;
+GO
+/* ============================================================
+   6. TH? ATM
+   ============================================================ */
+
+CREATE PROC sp_themThe
+    @soThe VARCHAR(10),
+	@ngayMoThe DATE,
+    @ngayHetHan DATE,
+    @maLoaiThe VARCHAR(10),
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    INSERT INTO TheATM(soThe,ngayMoThe, ngayHetHan, maLoaiThe, soTaiKhoan)
+    VALUES (@soThe,@ngayMoThe, @ngayHetHan, @maLoaiThe, @soTaiKhoan);
+END;
+GO
+CREATE PROC sp_capNhatThe
+    @soThe VARCHAR(10),
+	@ngayMoThe DATE,
+    @ngayHetHan DATE,
+    @maLoaiThe VARCHAR(10),
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    UPDATE TheATM
+    SET ngayMoThe = @ngayMoThe, ngayHetHan=@ngayHetHan, maLoaiThe=@maLoaiThe, soTaiKhoan=@soTaiKhoan
+    WHERE soThe=@soThe;
+END;
+GO
+
+CREATE PROC sp_xoaThe
+    @soThe VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM TheATM WHERE soThe=@soThe;
+END;
+GO
+
+CREATE PROC sp_layTheTheoSoThe
+    @soThe VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM TheATM WHERE soThe=@soThe;
+END;
+GO
+
+CREATE PROC sp_layDanhSachThe
+AS
+BEGIN
+    SELECT * FROM TheATM;
+END;
+GO
+/* ============================================================
+   7. GIAO D?CH
+   ============================================================ */
+
+/* ============================================================
+   Thêm giao d?ch
+   ============================================================ */
+/* ============================================================
+   Thêm giao d?ch
+   ============================================================ */
+CREATE OR ALTER PROC sp_themGiaoDich
+    @maGiaoDich VARCHAR(10),
+    @ngayGiaoDich DATE,
+    @soTienGiaoDich DECIMAL(15,2),
+    @taiKhoanNguon VARCHAR(10),
+    @taiKhoanDich VARCHAR(10),
+    @moTa		 NVARCHAR(50),
+    @trangThai NVARCHAR(50),
+    @loaiGiaoDich NVARCHAR(50) -- Tham s? m?i
+AS
+BEGIN
+    INSERT INTO GiaoDich(maGiaoDich, ngayGiaoDich, soTienGiaoDich,
+                         taiKhoanNguon, taiKhoanDich, moTa, trangThai, loaiGiaoDich) -- Thêm c?t loaiGiaoDich
+    VALUES (@maGiaoDich, @ngayGiaoDich, @soTienGiaoDich,
+            @taiKhoanNguon, @taiKhoanDich, @moTa, @trangThai, @loaiGiaoDich); -- Thêm giá tr? @loaiGiaoDich
+END;
+GO
+/* ============================================================
+   C?p nh?t giao d?ch
+   ============================================================ */
+CREATE OR ALTER PROC sp_capNhatGiaoDich
+    @maGiaoDich VARCHAR(10),
+    @ngayGiaoDich DATE,
+    @soTienGiaoDich DECIMAL(15,2),
+    @taiKhoanNguon VARCHAR(10),
+    @taiKhoanDich VARCHAR(10),
+    @moTa NVARCHAR(50), -- Ðã s?a ki?u d? li?u t? VARCHAR(10) thành NVARCHAR(50)
+    @trangThai NVARCHAR(50),
+    @loaiGiaoDich NVARCHAR(50) -- Tham s? m?i
+AS
+BEGIN
+    UPDATE GiaoDich
+    SET ngayGiaoDich     = @ngayGiaoDich,
+        soTienGiaoDich   = @soTienGiaoDich,
+        taiKhoanNguon    = @taiKhoanNguon,
+        taiKhoanDich     = @taiKhoanDich,
+        moTa             = @moTa,
+        trangThai        = @trangThai,
+        loaiGiaoDich     = @loaiGiaoDich -- C?p nh?t c?t m?i
+    WHERE maGiaoDich = @maGiaoDich;
+END;
+GO
+/* ============================================================
+   Xóa giao d?ch
+   ============================================================ */
+CREATE PROC sp_xoaGiaoDich
+    @maGiaoDich VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM GiaoDich WHERE maGiaoDich = @maGiaoDich;
+END;
+GO
+/* ============================================================
+   L?y giao d?ch theo mã
+   ============================================================ */
+CREATE PROC sp_layGiaoDichTheoMa
+    @maGiaoDich VARCHAR(10)
+AS
+BEGIN
+    SELECT *
+    FROM GiaoDich
+    WHERE maGiaoDich = @maGiaoDich;
+END;
+GO
+/* ============================================================
+   L?y danh sách giao d?ch
+   ============================================================ */
+CREATE PROC sp_layDanhSachGiaoDich
+AS
+BEGIN
+    SELECT *
+    FROM GiaoDich;
+END;
+GO
+
+
+
+create proc sp_layTenCN
+@maChiNhanh Varchar(10)
+as
+select tenChiNhanh from ChiNhanh where maChiNhanh=@maChiNhanh
+
+go
+
+-- 1. SP L?c theo Gi?i tính
+CREATE OR ALTER PROC sp_LocKhachHangTheoGioiTinh
+    @gioiTinh NVARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM KhachHang WHERE gioiTinh = @gioiTinh;
+END;
+GO
+
+-- 2. SP L?c theo Lo?i Khách hàng
+CREATE OR ALTER PROC sp_LocKhachHangTheoLoaiKH
+    @loaiKhachHang NVARCHAR(50)
+AS
+BEGIN
+    SELECT * FROM KhachHang WHERE loaiKhachHang = @loaiKhachHang;
+END;
+GO
+
+-- 3. SP L?c theo Tr?ng thái
+CREATE OR ALTER PROC sp_LocKhachHangTheoTrangThai
+    @trangThai NVARCHAR(50)
+AS
+BEGIN
+    SELECT * FROM KhachHang WHERE trangThai = @trangThai;
+END;
+GO
+
+-- 4. SP L?c theo Chi nhánh
+CREATE OR ALTER PROC sp_LocKhachHangTheoChiNhanh
+    @maChiNhanh VARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM KhachHang WHERE maChiNhanh = @maChiNhanh;
+END;
+GO
+
+-- 5. SP L?c theo Ngày Ðang ký (Ph?c t?p hon, d?a trên logic DATEDIFF)
+-- Code SQL Server
+-- Code SQL Server
+CREATE OR ALTER PROC sp_LocKhachHangTheoThoiGianDK
+    @khoangThoiGian NVARCHAR(50) -- Ví dụ: 'Dưới 1 năm', '1 - 5 năm', v.v.
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- 1. Tính toán thâm niên (số năm đăng ký) chính xác
+    WITH KhachHangThoiGianDK AS (
+        SELECT
+            *,
+            -- Công thức tính số năm trôi qua kể từ ngày đăng ký một cách chính xác
+            DATEDIFF(year, ngayDangKy, GETDATE()) - 
+            CASE 
+                -- Trừ đi 1 nếu ngày kỷ niệm chưa tới trong năm nay
+                WHEN MONTH(ngayDangKy) > MONTH(GETDATE()) OR 
+                     (MONTH(ngayDangKy) = MONTH(GETDATE()) AND DAY(ngayDangKy) > DAY(GETDATE())) 
+                THEN 1 
+                ELSE 0 
+            END AS SoNamDangKy
+        FROM KhachHang
+    )
+    
+    -- 2. Lọc theo khoảng thời gian đã tính
+    SELECT *
+    FROM KhachHangThoiGianDK
+    WHERE
+        (
+            @khoangThoiGian = N'Dưới 1 năm' AND SoNamDangKy < 1
+        )
+        OR
+        (
+            @khoangThoiGian = N'1 - 5 năm' AND SoNamDangKy BETWEEN 1 AND 5
+        )
+        OR
+        (
+            @khoangThoiGian = N'5 - 10 năm' AND SoNamDangKy BETWEEN 6 AND 10 -- Lấy từ 6 đến 10 năm
+        )
+        OR
+        (
+            @khoangThoiGian = N'Trên 10 năm' AND SoNamDangKy > 10
+        )
+    ORDER BY ngayDangKy ASC;
+END
+GO
+
+select * from KhachHang
+
+GO
+
+/* ============================================================
+   SP TÌM KI?M KHÁCH HÀNG (THEO NHI?U TIÊU CHÍ)
+   ============================================================ */
+CREATE OR ALTER PROC sp_timKiemKhachHang
+    @key NVARCHAR(100) = NULL
+AS
+BEGIN
+    SELECT 
+        *
+    FROM 
+        KhachHang
+    WHERE 
+        maKhachHang LIKE '%' + @key + '%' 
+        OR tenKhachHang LIKE N'%' + @key + N'%'
+        OR email LIKE '%' + @key + '%'
+        OR soDienThoai LIKE '%' + @key + '%'
+        OR soCMND LIKE '%' + @key + '%'
+END;
+GO
+CREATE OR ALTER PROC sp_timKiemNhanVien
+    @key NVARCHAR(100) = NULL
+AS
+BEGIN
+    SELECT 
+        *
+    FROM 
+        NhanVien
+    WHERE 
+        maNhanVien LIKE '%' + @key + '%' 
+        OR tenNhanVien LIKE N'%' + @key + N'%'
+        OR email LIKE '%' + @key + '%'
+        OR soDienThoai LIKE '%' + @key + '%'
+END;
+GO
+
+
+
+CREATE OR ALTER PROC sp_LocNhanVienTheoGioiTinh
+    @gioiTinh NVARCHAR(10)
+AS
+BEGIN
+    SELECT * FROM NhanVien WHERE gioiTinh = @gioiTinh;
+END;
+GO
+CREATE OR ALTER PROC sp_LocNhanVienTheoTrangThai
+    @trangThai NVARCHAR(50) -- Ví d?: 'Ðang làm', 'Ngh? vi?c'
+AS
+BEGIN
+    SELECT * FROM NhanVien WHERE trangThai = @trangThai;
+END;
+GO
+CREATE OR ALTER PROC sp_LocNhanVienTheoViTri
+    @viTri NVARCHAR(100) -- Ví d?: 'Giao D?ch Viên', 'K? Toán', 'Qu?n Lý'
+AS
+BEGIN
+    SELECT * FROM NhanVien WHERE viTri = @viTri;
+END;
+GO
+CREATE OR ALTER PROC sp_LocNhanVienTheoChiNhanh
+    @maChiNhanh VARCHAR(10) -- Ví d?: 'CN001', 'CN002'
+AS
+BEGIN
+    SELECT * FROM NhanVien WHERE maChiNhanh = @maChiNhanh;
+END;
+GO
+
+CREATE OR ALTER PROC sp_LocNhanVienTheoThamNien
+    @khoangThoiGian NVARCHAR(50) -- Ví dụ: 'Dưới 1 năm', '1 - 5 năm', v.v.
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- 1. Tính toán thâm niên chính xác (ThamNienNam)
+    WITH NhanVienThamNien AS (
+        SELECT
+            *,
+            DATEDIFF(year, ngayVaoLam, GETDATE()) - 
+            CASE 
+                -- Trừ đi 1 nếu ngày sinh nhật/kỷ niệm chưa tới trong năm nay
+                WHEN MONTH(ngayVaoLam) > MONTH(GETDATE()) OR 
+                     (MONTH(ngayVaoLam) = MONTH(GETDATE()) AND DAY(ngayVaoLam) > DAY(GETDATE())) 
+                THEN 1 
+                ELSE 0 
+            END AS ThamNienNam
+        FROM NhanVien
+    )
+    
+    -- 2. Lọc theo khoảng thời gian đã tính
+    SELECT *
+    FROM NhanVienThamNien
+    WHERE
+        (
+            @khoangThoiGian = N'Dưới 1 năm' AND ThamNienNam < 1
+        )
+        OR
+        (
+            @khoangThoiGian = N'1 - 5 năm' AND ThamNienNam BETWEEN 1 AND 5
+        )
+        OR
+        (
+            @khoangThoiGian = N'5 - 10 năm' AND ThamNienNam BETWEEN 6 AND 10 -- Sửa: Lấy từ 6 đến 10
+        )
+        OR
+        (
+            @khoangThoiGian = N'Trên 10 năm' AND ThamNienNam > 10
+        )
+    ORDER BY ngayVaoLam ASC;
+END
+GO
+
+
+CREATE  PROC sp_layDanhSachViTri
+AS
+BEGIN
+    SELECT DISTINCT viTri 
+    FROM NhanVien
+END;
+GO
+
+create proc sp_layTenKhachHang
+@soTaiKhoan varchar(10)
+as
+select kh.tenKhachHang from KhachHang kh , TaiKhoan tk where tk.soTaiKhoan=@soTaiKhoan and kh.maKhachHang = tk.maKhachHang
+go
+CREATE OR ALTER PROC sp_timKiemGiaoDich
+    @ngayBatDau DATE,
+    @ngayKetThuc DATE,
+    @tienMin DECIMAL(15, 2),
+    @tienMax DECIMAL(15, 2),
+    @loaiGiaoDich NVARCHAR(50), 
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM GiaoDich
+    WHERE
+        ngayGiaoDich >= @ngayBatDau
+        AND ngayGiaoDich < @ngayKetThuc 
+        
+        AND soTienGiaoDich >= @tienMin
+        AND soTienGiaoDich <= @tienMax
+        
+        -- BỔ SUNG: Kiểm tra NULL HOẶC Chuỗi rỗng.
+        AND (@loaiGiaoDich IS NULL OR @loaiGiaoDich = '' OR loaiGiaoDich = @loaiGiaoDich)        
+        
+        AND (@soTaiKhoan IS NULL OR @soTaiKhoan = '' 
+             OR taiKhoanDich = @soTaiKhoan
+             OR taiKhoanNguon = @soTaiKhoan)
+             
+    ORDER BY ngayGiaoDich DESC;
+END
+GO
+create proc sp_layDanhSachLoaiGD
+as
+begin
+SELECT DISTINCT loaiGiaoDich 
+    FROM GiaoDich
+end
+
+
+GO
+
+
+create proc sp_laySoDuTK
+@soTaiKhoan varchar(10)
+as
+begin
+select soDu from TaiKhoan where soTaiKhoan=@soTaiKhoan
+end
+go
+
+
+
+CREATE PROC sp_thucHienGiaoDich
+    @soTaiKhoanNguon VARCHAR(10),
+    @soTaiKhoanDich VARCHAR(10),
+    @soTien DECIMAL(15, 2)
+AS
+BEGIN
+    
+    BEGIN TRANSACTION;
+
+    
+    
+    UPDATE TaiKhoan
+    SET soDu = soDu - @soTien
+    WHERE soTaiKhoan = @soTaiKhoanNguon;
+
+   
+    UPDATE TaiKhoan
+    SET soDu = soDu + @soTien
+    WHERE soTaiKhoan = @soTaiKhoanDich;
+
+    COMMIT TRANSACTION;
+END
+GO
+
+/* ============================================================
+   8. B?NG TÀI KHO?N NHÂN VIÊN (Dùng cho dang nh?p)
+============================================================ */
+CREATE TABLE TaiKhoanNhanVien (
+    maNhanVien      VARCHAR(10) PRIMARY KEY, -- Liên k?t v?i NhanVien
+    tenDangNhap     VARCHAR(50) UNIQUE NOT NULL,
+    matKhau         VARCHAR(100) NOT NULL, -- C?n mã hóa trong th?c t?
+    quyenHan        NVARCHAR(50) NOT NULL, -- 'Admin', 'User'
+    FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien)
+);
+GO
+-- ===================================
+-- 8. CHÈN D? LI?U VÀO B?NG TÀI KHO?N NV
+-- ===================================
+
+-- Luu ý: M?t kh?u '123' ch? là ví d?. C?n mã hóa trong ?ng d?ng th?c t?.
+INSERT INTO TaiKhoanNhanVien (maNhanVien, tenDangNhap, matKhau, quyenHan)
+values ('NV001','NV001','123','user'),
+('NV005','ADMIN001','123','admin');
+GO
+INSERT INTO TaiKhoanNhanVien (maNhanVien, tenDangNhap, matKhau, quyenHan)
+values ('NV003','NV003','123','user'),
+('NV004','NV004','123','user'),
+('NV006','NV006','123','user')
+go
+SELECT * FROM TaiKhoanNhanVien;
+GO
+
+create proc sp_layQuyenHan
+@tenDangNhap varchar(50),
+@matKhau varchar(100)
+as
+begin
+select quyenHan from TaiKhoanNhanVien where tenDangNhap=@tenDangNhap and matKhau=@matKhau
+end
+go
+
+
+create proc sp_tinhTongKhachHang
+as
+SELECT COUNT(*) FROM KhachHang
+go
+
+
+
+create proc sp_tinhTongNhanVien
+as
+SELECT COUNT(*) FROM NhanVien
+go
+
+create proc sp_tinhTongGiaoDich
+as
+SELECT COUNT(*) FROM GiaoDich
+go
+
+create proc sp_tinhTongChiNhanh
+as
+SELECT COUNT(*) FROM ChiNhanh
+go
+
+create proc sp_tinhTongTheATM
+as
+SELECT COUNT(*) FROM TheATM
+go
+
+CREATE proc  sp_locGiaoDichTheoSTKVaNgay
+    @ngayBatDau DATE,
+    @ngayKetThuc DATE,
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM GiaoDich
+    WHERE
+        ngayGiaoDich >= @ngayBatDau
+        AND ngayGiaoDich < @ngayKetThuc 
+              
+             AND (@soTaiKhoan IS NULL OR @soTaiKhoan = '' 
+             OR taiKhoanDich = @soTaiKhoan
+             OR taiKhoanNguon = @soTaiKhoan)
+             
+    ORDER BY ngayGiaoDich DESC;
+END
+GO
+
+
+CREATE OR ALTER PROC sp_LayMaVaTenKhachHangTuSTK
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN    
+    SELECT 
+        KH.maKhachHang, 
+        KH.tenKhachHang
+    FROM 
+        TaiKhoan TK,KhachHang KH 
+		where TK.maKhachHang = KH.maKhachHang and  TK.soTaiKhoan = @soTaiKhoan;
+END
+
+go
+
+-- LAY TẤT CẢ DỮ LIỆU TỪ CÁC BẢNG
+-- ============================
+-- 1. LAY TẤT CẢ CHI NHÁNH
+CREATE PROC sp_LayTatCaChiNhanh
+AS
+BEGIN
+    SELECT *
+	FROM ChiNhanh;
+END;
+GO
+
+-- 2. LAY TẤT CẢ NHÂN VIÊN
+CREATE PROC sp_LayTatCaNhanVien
+AS
+BEGIN
+    SELECT maNhanVien, tenNhanVien, ngaySinh, diaChi, soDienThoai, maChiNhanh FROM NhanVien;
+END;
+GO
+
+-- 3. LAY TẤT CẢ KHÁCH HÀNG
+
+CREATE PROC sp_LayTatCaKhachHang
+AS
+BEGIN
+    SELECT maKhachHang, tenKhachHang, ngaySinh, diaChi, soCMND, soDienThoai, maChiNhanh FROM KhachHang;
+END;
+GO
+
+-- 4. LAY TẤT CẢ TÀI KHOẢN
+
+CREATE PROC sp_LayTatCaTaiKhoan
+AS
+BEGIN
+    SELECT soTaiKhoan, ngayMo, maKhachHang, soDu FROM TaiKhoan;
+END;
+GO
+
+-- 5. LAY TẤT CẢ LOẠI THẺ
+
+CREATE PROC sp_LayTatCaLoaiThe
+AS
+BEGIN
+    SELECT maLoaiThe, tenLoaiThe FROM LoaiThe;
+END;
+GO
+-- 6. LAY TẤT CẢ THẺ ATM
+
+CREATE PROC sp_LayTatCaTheATM
+AS
+BEGIN
+    SELECT * FROM TheATM;
+END;
+GO
+
+-- 7. LAY TẤT CẢ GIAO DỊCH
+
+CREATE PROC sp_LayTatCaGiaoDich
+AS
+BEGIN
+    SELECT * FROM GiaoDich;
+END;
+GO
+-- ============================
+-- Lấy nhân viên theo chi nhánh :
+CREATE PROCEDURE sp_LayNhanVienTheoChiNhanh
+    @maChiNhanh NVARCHAR(10)
+AS
+BEGIN
+    SELECT 
+       NV.maNhanVien    AS 'Mã nhân viên',
+        NV.tenNhanVien   AS 'Họ tên',
+        NV.ngaySinh      AS 'Ngày sinh',
+        NV.gioiTinh      AS 'Giới tính',
+        NV.email         AS 'Email',
+        NV.ngayVaoLam    AS 'Ngày vào làm',
+        NV.viTri         AS 'Vị trí',
+        NV.trangThai     AS 'Trạng thái',
+        NV.quyenHan      AS 'Quyền hạn',
+        NV.diaChi        AS 'Địa chỉ',
+        NV.soDienThoai   AS 'Số điện thoại',
+        CN.tenChiNhanh   AS 'Tên chi nhánh' 
+    FROM NHANVIEN NV
+    INNER JOIN CHINHANH CN ON NV.maChiNhanh = CN.maChiNhanh
+    WHERE NV.maChiNhanh = @maChiNhanh
+END
+GO
+--
+/* ============================================================
+   SP TÌM KIẾM TÀI KHOẢN (THEO SỐ TK HOẶC MÃ KH)
+   ============================================================ */
+CREATE PROC sp_timKiemTaiKhoan
+    @key VARCHAR(50) = NULL --
+AS
+BEGIN
+    -- Đảm bảo @key được xử lý để tìm kiếm một phần (LIKE '%key%')
+    IF @key IS NULL OR LTRIM(RTRIM(@key)) = ''
+    BEGIN
+        -- Nếu không có từ khóa, trả về tất cả (hoặc có thể trả về tập rỗng tùy nhu cầu)
+        SELECT * FROM TaiKhoan;
+        RETURN;
+    END
+
+    SELECT 
+        TaiKhoan.*,
+        KhachHang.tenKhachHang, -- Lấy thêm tên khách hàng để dễ dàng xác định
+        TaiKhoan.soDu AS 'Số Dư Hiện Tại'
+    FROM 
+        TaiKhoan
+JOIN KhachHang ON TaiKhoan.maKhachHang = KhachHang.maKhachHang
+    WHERE 
+        -- Tìm kiếm theo Số Tài Khoản
+        TaiKhoan.soTaiKhoan LIKE '%' + @key + '%' 
+        -- HOẶC Tìm kiếm theo Mã Khách Hàng
+        OR TaiKhoan.maKhachHang LIKE '%' + @key + '%'
+        -- HOẶC Tìm kiếm theo Tên Khách Hàng
+        OR KhachHang.tenKhachHang LIKE N'%' + @key + N'%'
+    ORDER BY TaiKhoan.soTaiKhoan;
+END;
+GO
+
+
+
+CREATE PROC sp_layTenKhachHangTheoMa
+@maKH char(10)
+as
+select tenKhachHang from KhachHang where maKhachHang=@maKH
+
+GO
+
+CREATE OR ALTER PROC sp_timKiemThe
+    @key NVARCHAR(100)
+AS
+BEGIN
+    SELECT
+        *
+    FROM TheATM
+    WHERE
+        soThe LIKE '%' + @key + '%'
+        OR maLoaiThe LIKE '%' + @key + '%'
+        OR soTaiKhoan LIKE '%' + @key + '%';
+        
+END
+GO
+
+
+
+CREATE proc  sp_locGiaoDichTheoSTK
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+
+    SELECT * FROM GiaoDich
+    WHERE              
+             (@soTaiKhoan IS NULL OR @soTaiKhoan = '' 
+             OR taiKhoanDich = @soTaiKhoan
+             OR taiKhoanNguon = @soTaiKhoan)
+             
+    ORDER BY ngayGiaoDich DESC;
+END
+GO
+
+CREATE proc  sp_locGiaoDichTheoNgayVaSTK
+    @ngayBatDau DATE,
+    @ngayKetThuc DATE,
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM GiaoDich
+    WHERE
+        ngayGiaoDich >= @ngayBatDau
+        AND ngayGiaoDich < @ngayKetThuc 
+              
+             AND (@soTaiKhoan IS NULL OR @soTaiKhoan = '' 
+             OR taiKhoanDich = @soTaiKhoan
+             OR taiKhoanNguon = @soTaiKhoan)
+             
+    ORDER BY ngayGiaoDich DESC;
+END
+GO
+
+CREATE OR ALTER PROC sp_layTenVaMaKhachHangTheoSoTaiKhoan
+    @soTaiKhoan VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        KH.maKhachHang, 
+        KH.tenKhachHang
+    FROM
+        TaiKhoan TK
+    INNER JOIN
+        KhachHang KH ON TK.maKhachHang = KH.maKhachHang
+    WHERE
+        TK.soTaiKhoan = @soTaiKhoan;
+END
+GO
+
+/* ============================================================
+   LẤY DANH SÁCH TÀI KHOẢN NHÂN VIÊN
+   ============================================================ */
+CREATE OR ALTER PROC sp_layDanhSachTaiKhoanNhanVien
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        *
+    FROM
+        TaiKhoanNhanVien    
+END
+GO
+/* ============================================================
+   THÊM TÀI KHOẢN NHÂN VIÊN
+   ============================================================ */
+CREATE OR ALTER PROC sp_themTaiKhoanNhanVien
+    @maNhanVien    VARCHAR(10),
+    @tenDangNhap   VARCHAR(50),
+    @matKhau       VARCHAR(100),
+    @quyenHan      NVARCHAR(50)
+AS
+BEGIN
+    -- Kiểm tra xem maNhanVien đã tồn tại trong bảng TaiKhoanNhanVien chưa (UNIQUE KEY)
+    IF EXISTS (SELECT 1 FROM TaiKhoanNhanVien WHERE maNhanVien = @maNhanVien)
+    BEGIN
+        THROW 50000, N'Mã nhân viên này đã có tài khoản đăng nhập.', 1;
+        RETURN;
+    END
+
+    INSERT INTO TaiKhoanNhanVien (maNhanVien, tenDangNhap, matKhau, quyenHan)
+    VALUES (@maNhanVien, @tenDangNhap, @matKhau, @quyenHan);
+END;
+GO
+/* ============================================================
+   CẬP NHẬT TÀI KHOẢN NHÂN VIÊN
+   ============================================================ */
+CREATE OR ALTER PROC sp_capNhatTaiKhoanNhanVien
+    @maNhanVien    VARCHAR(10),
+    @tenDangNhap   VARCHAR(50) = NULL, -- Có thể tùy chọn cập nhật tên đăng nhập
+    @matKhau       VARCHAR(100) = NULL, -- Cần mã hóa ở tầng ứng dụng
+    @quyenHan      NVARCHAR(50) = NULL
+AS
+BEGIN
+    UPDATE TaiKhoanNhanVien
+    SET
+        -- Chỉ cập nhật nếu tham số không phải là NULL
+        tenDangNhap = ISNULL(@tenDangNhap, tenDangNhap),
+        matKhau = ISNULL(@matKhau, matKhau),
+        quyenHan = ISNULL(@quyenHan, quyenHan)
+    WHERE
+        maNhanVien = @maNhanVien;
+END;
+GO
+
+/* ============================================================
+   XÓA TÀI KHOẢN NHÂN VIÊN
+   ============================================================ */
+CREATE OR ALTER PROC sp_xoaTaiKhoanNhanVien
+    @maNhanVien VARCHAR(10)
+AS
+BEGIN
+    DELETE FROM TaiKhoanNhanVien
+    WHERE maNhanVien = @maNhanVien;
+END;
+GO
+
+create proc sp_layDanhSachTheBaoCao
+as
+select th.*, kh.tenKhachHang from TheATM th,TaiKhoan tk,khachhang kh where th.soTaiKhoan = tk.soTaiKhoan and kh.maKhachHang = tk.maKhachHang
+go
+
